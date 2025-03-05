@@ -3,6 +3,7 @@ import time
 from dotenv import load_dotenv
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
 def scrape_business_insider():
     try:
@@ -23,18 +24,38 @@ def scrape_business_insider():
         # Check if the request was successful
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
+            # Latest news
             articles = soup.find_all('section', class_="popular-articles")
+           
+            # Stocks news
             stocks_news = soup.find_all("section", class_="instrument-stories")
-            for stock in stocks_news:
-                all_news_data.append(stock.text)
-            for article in articles:
-                all_news_data.append(article.text)
-            print(all_news_data)
-        else:
-            print(f"Failed to fetch data. Status code: {response.status_code}")
 
-        # Add a delay to avoid too many requests
-        time.sleep(2) 
+            articles_urls = []
+            for i, article in enumerate(articles):
+
+                for data in article.find_all("div", class_="popular-articles__story"):
+                    dattime = data.find("time", class_="popular-articles__date").get("datetime")
+                    title = data.find("h3", class_="popular-articles__title").text.strip()
+                    article_url_tag = data.find("a", class_="popular-articles__link")
+                    article_url = f"https://markets.businessinsider.com{article_url_tag['href']}"
+
+                    if article_url:
+                        print("article_url\n", article_url)
+                        articles_response= requests.get(article_url, headers=headers)
+                        if articles_response.status_code == 200:
+                            print(f"Article scraped: {title}")
+
+                        else:
+                            print(f"Failed to fetch article: {title}")
+
+
+
+
+
+
+
+        else:
+            print(f"Failed to fetch data. Status code: {response.status_code}") 
 
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -43,7 +64,6 @@ if __name__ == "__main__":
     scrape_business_insider()
 
     
-
 
 
 
