@@ -19,8 +19,20 @@ def scrape_yahoo_finance():
 
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            news = soup.find_all("div", class_="topic-stories yf-sz4j54")
-            print(news)
+            news = soup.find_all("div", class_="topic-stream")
+            
+            
+            # printing news articles
+            for i, news_article in enumerate(news):
+                articles_tags = news_article.find_all("div", class_="content yf-82qtw3")
+                for article in articles_tags:
+                    print(article.find("h3").text)
+
+
+
+
+                
+                    
 
     except Exception as e:
         print(f"An error occurred: {e}")
