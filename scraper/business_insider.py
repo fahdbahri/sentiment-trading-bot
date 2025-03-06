@@ -43,16 +43,24 @@ def scrape_business_insider():
                         print("article_url\n", article_url)
                         articles_response= requests.get(article_url, headers=headers)
                         if articles_response.status_code == 200:
-                            print(f"Article scraped: {title}")
-
+                            
+                            articles_soup = BeautifulSoup(articles_response.text, 'html.parser')
+                            article_content = articles_soup.find("section", class_="post-content typography") 
                         else:
                             print(f"Failed to fetch article: {title}")
 
 
+                        news_data = {
+                                "source": "Business Insider",
+                                "title": title,
+                                "content": article_content.text,
+                                "sentiment_score": None,
+                                "published_at": dattime
+                                }
+                        
 
-
-
-
+                    else:
+                        print(f"Failed to fetch article: {title}")
 
         else:
             print(f"Failed to fetch data. Status code: {response.status_code}") 
@@ -60,8 +68,8 @@ def scrape_business_insider():
     except Exception as e:
         print(f"An error occurred: {e}")
 
-if __name__ == "__main__":
-    scrape_business_insider()
+
+
 
     
 
