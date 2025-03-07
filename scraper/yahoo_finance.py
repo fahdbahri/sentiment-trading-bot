@@ -1,11 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
+import datetime
 
 
-
-
-def scrape_yahoo_finance():
+def scrape_yahoo_finance(date):
     try:
+
+        all_news_data = []
 
         url = "https://finance.yahoo.com/topic/stock-market-news/"
 
@@ -26,13 +27,25 @@ def scrape_yahoo_finance():
             for i, news_article in enumerate(news):
                 articles_tags = news_article.find_all("div", class_="content yf-82qtw3")
                 for article in articles_tags:
-                    print(article.find("h3").text)
-
-
-
-
-                
+                    title = article.find("h3").text
+                    content = article.find("p").text
                     
+
+            
+                    news_data = {
+                        "source": "Yahoo Finance",
+                        "title": title,
+                        "content": content,
+                        "sentiment_score": None,
+                        "published_at": date
+                        }
+                    all_news_data.append(news_data)
+            
+            
+            print(all_news_data)
+        else:
+            print(f"Failed to fetch data. Status code: {response.status_code}")
+
 
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -40,4 +53,5 @@ def scrape_yahoo_finance():
 
 
 if __name__ == "__main__":
-    scrape_yahoo_finance()
+    date = datetime.datetime.now()
+    scrape_yahoo_finance(date)
