@@ -19,12 +19,12 @@ def get_sentiment_score(news_data):
     for news in news_data:
 
 
-        output = pipeline_method(news['title'] + " " + news['content'])
+        output = pipeline_method(news)
 
         top_sentiment = output['label']
         sentiment_score = output['score']
 
-    
+        print("news title: ", news)
         print(f"Sentiment score: {sentiment_score} and Top Sentiment: {top_sentiment}")
 
 

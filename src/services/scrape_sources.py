@@ -5,6 +5,46 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from datetime import datetime
+import spacy
+import yfinance as yf
+
+
+# Load NLP model
+nlp = spacy.load("en_core_web_sm")
+
+# Stock symbol mapping
+STOCK_MAPPING = {
+    "Tesla": "TSLA",
+    "Apple": "AAPL",
+    "Microsoft": "MSFT",
+    "Amazon": "AMZN",
+    "Nvidia": "NVDA",
+    "Google": "GOOGL",
+    "Meta": "META",
+}
+
+
+def extract_stock_symbol(news_title):
+    # Try matching known stock names
+    for company, symbol in STOCK_MAPPING.items():
+        if company.lower() in news_title.lower():
+            return symbol
+
+    # Try extracting company name with NLP
+    doc = nlp(news_title)
+    for ent in doc.ents:
+        if ent.label_ == "ORG":
+            return STOCK_MAPPING.get(ent.text, None)  # Convert to symbol if found
+
+    return None
+
+def get_stock_price(symbol):
+    try:
+        stock = yf.Ticker(symbol)
+        price = stock.history(period="1d")["Close"].iloc[-1]
+        return price
+    except:
+        return None
 
 def scrape_news():
     all_news_data = []
@@ -22,7 +62,7 @@ def scrape_news():
             print("SUccessfully fetched data from Yahoo Finance")
             soup = BeautifulSoup(response.text, 'html.parser')
             news = soup.find_all("div", class_="topic-stream")
-            print(datetime.now())
+            
             
             for i, news_article in enumerate(news):
                 articles_tags = news_article.find_all("div", class_="content yf-82qtw3")
@@ -30,7 +70,18 @@ def scrape_news():
                     title = article.find("h3").text
                     content = article.find("p").text
                     formatted_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    
+
+
+                    stock_symbol = extract_stock_symbol(content)
+
+                    if stock_symbol:
+                        price = get_stock_price(stock_symbol)
+
+                        print(f"title: {title}")
+                        print(f"Stock price: {price}")
+                        print(f"Stock symbol: {stock_symbol}")
+                    else:
+                        print(f"Stock symbol not found for {title}")
 
                     news_data = {
                         "source": "Yahoo Finance",
