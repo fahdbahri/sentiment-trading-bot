@@ -169,3 +169,14 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+
+
+# Ignore Docker persistent storage
+docker/influxdb/*
+docker/grafana/*
+docker/telegraf/*
+!docker/influxdb/.gitkeep
+!docker/grafana/.gitkeep
+!docker/telegraf/.gitkeep

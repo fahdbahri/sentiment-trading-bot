@@ -16,10 +16,7 @@ CRYPTOS = [
 def list_sources():
 
     crypto_data = []
-    
-
-    
-
+     
     
     for crypto in CRYPTOS:
         price, symbol = get_price(crypto)
@@ -36,7 +33,7 @@ def list_sources():
 
 
 
-    print(crypto_data)
+    return crypto_data
 
 
 
