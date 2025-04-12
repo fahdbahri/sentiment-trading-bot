@@ -1,7 +1,9 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
-from influxdb import influxDBClient, Point, WritePrecision
+import influxdb_client
+from influxdb_client.client.write_api import SYNCHRONOUS
 from datetime import datetime
 import os
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -13,19 +15,19 @@ BUCKET = 'crypto'
 
 
 # connect to database
-client = influxDBClient(url=INFLUX_URL, token=TOKEN, org=ORG)
+client = influxdb_client.InfluxDBClient(url=INFLUX_URL, token=TOKEN, org=ORG)
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
 
 def store_new(news_title, price, symbol, sentiment_score, sentiment_label):
 
-    point = Point("crypto_news") \
+    point = influxdb_client.Point("crypto_news") \
             .tag("symbol", symbol) \
             .tag("title", news_title) \
             .field("price", price) \
             .field("sentiment_score", sentiment_score) \
             .field("sentiment_label", sentiment_label) \
-            .time(datetiem.utcnow())
+            .time(datetime.utcnow())
 
     print("Data written to database")
             
@@ -53,7 +55,7 @@ def get_sentiment_score(news_data):
         
 
 
-        output = pipeline_method(news)
+        output = pipeline_method(news['title'])
 
         sentiment_label = output['label']
         sentiment_score = output['score']
