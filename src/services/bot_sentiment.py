@@ -4,6 +4,8 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+import redis
+import hashlib
 
 load_dotenv()
 
@@ -11,8 +13,11 @@ load_dotenv()
 INFLUX_URL = 'http://localhost:8086'
 TOKEN = os.getenv('ACCESS_TOKEN')
 ORG = 'fahd_org'
-BUCKET = 'crypto'
+BUCKET = 'market_news'
 
+
+# set up Redis
+redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
 # connect to database
 client = influxdb_client.InfluxDBClient(url=INFLUX_URL, token=TOKEN, org=ORG)
@@ -21,18 +26,27 @@ write_api = client.write_api(write_options=SYNCHRONOUS)
 
 def store_new(news_title, price, symbol, sentiment_score, sentiment_label):
 
+    unique_key = hashlib.sha256(f"{news_title}{price}{symbol}".encode()).hexdigest()
+
+    if redis_client.get(unique_key):
+        print("Data already exists in database")
+        return
+
+
     point = influxdb_client.Point("crypto_news") \
             .tag("symbol", symbol) \
-            .tag("title", news_title) \
+            .field("title", news_title) \
             .field("price", price) \
             .field("sentiment_score", sentiment_score) \
             .field("sentiment_label", sentiment_label) \
             .time(datetime.utcnow())
 
     print("Data written to database")
-            
-
     write_api.write(bucket=BUCKET, record=point)
+
+
+    redis_client.setex(unique_key, 24 * 3600, "1")
+    print(f"Written: {symbol} - {news_title}")
 
 def pipeline_method(payload):
 
