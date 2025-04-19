@@ -10,10 +10,10 @@ import hashlib
 load_dotenv()
 
 # set up Database
-INFLUX_URL = 'http://localhost:8086'
+INFLUX_URL = os.getenv('URL')
 TOKEN = os.getenv('ACCESS_TOKEN')
-ORG = 'fahd_org'
-BUCKET = 'market_news'
+ORG = os.genv('ORG')
+BUCKET = os.getenv('BUCKET')
 
 
 # set up Redis
