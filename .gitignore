@@ -180,3 +180,7 @@ docker/telegraf/*
 !docker/influxdb/.gitkeep
 !docker/grafana/.gitkeep
 !docker/telegraf/.gitkeep
+
+
+
+log.text
