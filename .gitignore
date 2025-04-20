@@ -183,4 +183,4 @@ docker/telegraf/*
 
 
 
-log.text
+logs.text
