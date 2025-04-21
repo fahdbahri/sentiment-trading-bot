@@ -183,4 +183,4 @@ docker/telegraf/*
 
 
 
-logs.txt
+/src/logs.txt
