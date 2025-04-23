@@ -1,9 +1,7 @@
 from pygooglenews import GoogleNews
 import requests
 
-
 gn = GoogleNews()
-
 
 CRYPTOS = [
     "bitcoin",
@@ -12,12 +10,9 @@ CRYPTOS = [
     "ripple", 
 ]
 
-
 def list_sources():
 
-    crypto_data = []
-     
-    
+    crypto_data = []    
     for crypto in CRYPTOS:
         price, symbol = get_price(crypto)
         response = gn.search(crypto, when='12h')
@@ -31,11 +26,7 @@ def list_sources():
                     }
             crypto_data.append(titles)
 
-
-
     return crypto_data
-
-
 
 
 def get_price(crypto):
