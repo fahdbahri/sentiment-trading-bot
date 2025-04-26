@@ -1,0 +1,10 @@
+influxdb-client
+numpy
+pandas
+pygooglenews
+python-dotenv
+redis
+requests
+schedule
+transformers
+torch

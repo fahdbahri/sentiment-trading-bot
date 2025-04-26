@@ -12,7 +12,7 @@ load_dotenv()
 # set up Database
 INFLUX_URL = os.getenv('URL')
 TOKEN = os.getenv('ACCESS_TOKEN')
-ORG = os.genv('ORG')
+ORG = os.getenv('ORG')
 BUCKET = os.getenv('BUCKET')
 
 
@@ -27,6 +27,7 @@ write_api = client.write_api(write_options=SYNCHRONOUS)
 def store_new(news_title, price, symbol, sentiment_score, sentiment_label):
 
     unique_key = hashlib.sha256(f"{news_title}{price}{symbol}".encode()).hexdigest()
+    
 
     if redis_client.get(unique_key):
         print("Data already exists in database")

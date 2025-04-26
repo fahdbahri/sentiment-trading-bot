@@ -33,17 +33,17 @@ def fetch_historical_data(symbol):
 
         query = f'''
         from(bucket: "{BUCKET}")
-        |> range(start: -30d)
+        |> range(start: -7d)
         |> filter(fn: (r) => r["_measurement"] == "crypto_news" and r["symbol"] == "{symbol}")
         |>pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         '''
 
         result = query_api.query_data_frame(query)
-        print(result["price"])
 
         return result 
     except Exception as e:
         print(f"An error occurred while fetching historical data: {e}")
+
 
 
 def label_data(df):
@@ -54,7 +54,7 @@ def label_data(df):
         labeled_data = []
 
         for index, row in df.iterrows():
-            current_price = row['price']
+            current_price = float(row['price'])
             print(current_price)
             timestamp = row['_time']
 
@@ -71,15 +71,23 @@ def label_data(df):
             future = query_api.query_data_frame(query)
             if future.empty: continue
 
-            future_price = future.iloc[0]['price']
-            change = int(float(future_price) - float(current_price)) / int(float(current_price))
+            future_price = float(future.iloc[0]['price'])
+            
+            change = (future_price - current_price) / (current_price)
 
-            if change > 0.01:
+            print(future_price)
+            print(current_price)
+            print(change)
+
+            
+
+            if change > 0.0002:
                 label = "buy"
-            elif change < -0.01:
+            elif change < -0.0002:
                 label = "sell"
             else:
                 label = "hold"
+            print(label)
 
             hour_of_day = timestamp.hour
             day_of_week = timestamp.weekday()
@@ -103,6 +111,7 @@ def label_data(df):
 
 
 
+
 def generate_dataset(symbols):
 
     try:
@@ -115,7 +124,7 @@ def generate_dataset(symbols):
             all_dfs.append(labeled_df)
 
         full_df = pd.concat(all_dfs)
-        full_df.to_csv("full_df.csv", index=False)
+        full_df.to_csv("full_df.csv", mode="a", index=False, header=False)
         print("Data written to file")
 
     except Exception as e:
@@ -123,8 +132,5 @@ def generate_dataset(symbols):
 
 
 
-if __name__ == "__main__":
-    symbols = ["BTCUSDT", "ETHUSDT", "LTCUSDT", "XRPUSDT"]
-    generate_dataset(symbols)
 
 

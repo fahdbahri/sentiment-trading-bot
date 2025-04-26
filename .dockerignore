@@ -1,0 +1,8 @@
+__pycache__/
+src/notebooks/
+*.log
+*.csv
+venv/
+*.txt
+src/training
+src/services/list_sources.py
